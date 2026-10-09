@@ -48,6 +48,9 @@ namespace ConnectFour
                 { labelRow3Column0, labelRow3Column1, labelRow3Column2, labelRow3Column3, labelRow3Column4, labelRow3Column5, labelRow3Column6},
                 { labelRow4Column0, labelRow4Column1, labelRow4Column2, labelRow4Column3, labelRow4Column4, labelRow4Column5, labelRow4Column6},
                 { labelRow5Column0, labelRow5Column1, labelRow5Column2, labelRow5Column3, labelRow5Column4, labelRow5Column5, labelRow5Column6}};
+
+            ResetBoard();
+            UpdateScores();
         }
 
         /// <summary>
@@ -107,22 +110,13 @@ namespace ConnectFour
             if (!EvaluateWin())
             {
                 isTurnRed = !isTurnRed;
-                if (isTurnRed)
-                {
-                    textCurrentPlayer.Text = "Red";
-                }
-                else
-                {
-                    textCurrentPlayer.Text = "Yellow";
-                }
-
+                
                 // Check if all buttons are disabled (e.g. no more moves exist).
                 // That means it's tied.
                 if (!(buttonColumn0.IsEnabled || buttonColumn1.IsEnabled || buttonColumn2.IsEnabled || buttonColumn3.IsEnabled || buttonColumn4.IsEnabled || buttonColumn5.IsEnabled || buttonColumn6.IsEnabled))
                 {
                     MessageBox.Show("Tie game. :(");
                     ties++;
-                    textTies.Text = ties.ToString();
                     ResetBoard();
                 }
             }
@@ -131,7 +125,6 @@ namespace ConnectFour
             {
                 MessageBox.Show("Red player wins!");
                 redScore++;
-                textRedPoints.Text = redScore.ToString();
                 ResetBoard();
             }
             // Otherwise, yellow has won.
@@ -139,9 +132,11 @@ namespace ConnectFour
             {
                 MessageBox.Show("Yellow player wins!");
                 yellowScore++;
-                textYellowPoints.Text = yellowScore.ToString();
                 ResetBoard();
             }
+
+            // Moved this outside of the decision structure, so it happens after every move regardless. Good for tracking the active player.
+            UpdateScores();
         }
 
         /// <summary>
@@ -289,6 +284,34 @@ namespace ConnectFour
         }
 
         /// <summary>
+        /// Update all of the scores that appear in the right columns.
+        /// </summary>
+        private void UpdateScores()
+        {
+            if (isTurnRed)
+            {
+                textCurrentPlayer.Text = "Red";
+            }
+            else
+            {
+                textCurrentPlayer.Text = "Yellow";
+            }
+
+            textRedPoints.Text = redScore.ToString();
+            textYellowPoints.Text = yellowScore.ToString();
+            textTies.Text = ties.ToString();            
+        }
+
+        /// <summary>
+        /// Event handler to reset the board including buttons as if to restart the game.
+        /// </summary>
+        private void ResetBoardClick(object sender, RoutedEventArgs e)
+        {
+            // Just call a method to do it (which we also call elsewhere).
+            ResetBoard();
+        }
+
+        /// <summary>
         /// Reset the board including buttons as if to restart the game.
         /// </summary>
         private void ResetBoard()
@@ -298,7 +321,8 @@ namespace ConnectFour
             {
                 button.IsEnabled = true;
             }
-            textCurrentPlayer.Text = "Red";
+            isTurnRed = true;
+            UpdateScores();
         }
 
         /// <summary>
@@ -309,9 +333,7 @@ namespace ConnectFour
             redScore = 0;
             yellowScore = 0;
             ties = 0;
-            textRedPoints.Text = redScore.ToString();
-            textYellowPoints.Text = yellowScore.ToString();
-            textTies.Text = ties.ToString();
+            UpdateScores();
         }
     }
 }
